@@ -78,3 +78,65 @@ CASE
 	ELSE result (Optional)
 END
 */
+
+SELECT 
+COUNT(*) as flights,
+CASE
+WHEN EXTRACT(month from scheduled_departure) IN (12,1,2) THEN 'Winter'
+WHEN EXTRACT (month from scheduled_departure) IN (3,4,5) THEN 'Spring'
+WHEN EXTRACT (month from scheduled_departure) IN (6,7,8) THEN 'Summer'
+ELSE 'Fall' 
+END as season
+FROM flights
+GROUP BY season
+
+
+SELECT
+title,
+CASE
+WHEN rating IN ('PG','PG-13') OR length > 210 THEN 'Great rating or long (tier 1)'
+WHEN description LIKE '%Drama%' AND length>90 THEN 'Long drama (tier 2)'
+WHEN description LIKE '%Drama%' THEN 'Short drama (tier 3)'
+WHEN rental_rate<1 THEN 'Very cheap (tier 4)'
+END as tier_list
+FROM film
+WHERE 
+CASE
+WHEN rating IN ('PG','PG-13') OR length > 210 THEN 'Great rating or long (tier 1)'
+WHEN description LIKE '%Drama%' AND length>90 THEN 'Long drama (tier 2)'
+WHEN description LIKE '%Drama%' THEN 'Short drama (tier 3)'
+WHEN rental_rate<1 THEN 'Very cheap (tier 4)'
+END is not null
+
+SELECT 
+SUM(CASE
+WHEN rating = 'G' THEN 1
+ELSE 0
+END) AS "G",
+SUM(CASE
+WHEN rating = 'R' THEN 1
+ELSE 0
+END) AS "R",
+SUM(CASE
+WHEN rating = 'NC-17' THEN 1
+ELSE 0
+END) AS "NC-17",
+SUM(CASE
+WHEN rating = 'PG-13' THEN 1
+ELSE 0
+END) AS "PG-13",
+SUM(CASE
+WHEN rating = 'PG' THEN 1
+ELSE 0
+END) AS "PG"
+FROM film
+
+--COALESCE: Returns first value of a list of values which is not null, if is null it will be filled with the second value
+--CAST: Changes de data type of a value CAST(value/column AS data type)
+
+SELECT rental_date, COALESCE(CAST(return_date AS VARCHAR), 'No returned') FROM rental
+ORDER BY rental_date DESC
+
+--REPLACE: Replaces text from a string in a column with another text REPLACE(column, old text, new text)
+SELECT CAST(REPLACE(passenger_id, ' ', '') AS BIGINT) as passenger_id FROM tickets
+SELECT REPLACE(flight_no, 'PG', 'FL') FROM flights
